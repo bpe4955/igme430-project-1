@@ -42,17 +42,20 @@ const handleResponse = async (response, headRequest) => {
   //If we have a message, display it.
   if (obj.message) { content.innerHTML += `<p>Message: ${obj.message}</p>`; }
   if (obj.id) { content.innerHTML += `<p>Id: ${obj.id}</p>`; }
+  // If getting users, show the users in content
   if (obj.users) { content.innerHTML += `<p>${JSON.stringify(obj.users)}</p>`; }
-  if (obj.messagesToSend) { 
-    Object.keys(obj.messagesToSend).forEach(key => {
-      chatBox.innerHTML += `<p>${obj.messagesToSend[key].name}: ${obj.messagesToSend[key].message}</p>`;
+  // If getting messages, show the messages in the chatbox
+  if (obj.messages) { 
+    Object.keys(obj.messages).forEach(key => {
+      chatBox.innerHTML += `<p>${obj.messages[key].name}: ${obj.messages[key].message}</p>`;
     });
   }
+  // If getting messages, update the lastMessageTime variable
   if (obj.time) { lastMessageTime = obj.time; }
 };
 
-//Uses fetch to send a postRequest. Marksed as async because we use await
-//within it.
+// Sends the user data to the server
+// Uses fetch to send a postRequest. Marksed as async because we use await within it.
 const sendUserPost = async (nameForm) => {
   //Grab all the info from the form
   const nameAction = nameForm.getAttribute('action');
@@ -83,8 +86,8 @@ const sendUserPost = async (nameForm) => {
   userColor = colorField.value;
 };
 
-//Uses fetch to send a postRequest. Marksed as async because we use await
-//within it.
+// Sends the message data to the server
+// Uses fetch to send a postRequest. Marksed as async because we use await within it.
 const sendMessagePost = async (messageForm) => {
   //Grab all the info from the form
   const messageAction = messageForm.getAttribute('action');
@@ -115,7 +118,9 @@ const sendMessagePost = async (messageForm) => {
   
 };
 
-const sendGet = async (userForm) => {
+// Send a request to get users
+// Will likely be unneeded in the final version
+const sendUserGet = async (userForm) => {
   const actionField = userForm.querySelector('#urlField');
   const methodField = userForm.querySelector('#methodSelect');
   let response = await fetch(actionField.value, {
@@ -126,6 +131,7 @@ const sendGet = async (userForm) => {
   handleResponse(response, methodField.value === 'head');
 }
 
+// Send a request to get messages
 const sendMessageGet = async () => {
 
   let response = await fetch(`/getMessages?time=${lastMessageTime}`, {
@@ -136,9 +142,10 @@ const sendMessageGet = async () => {
   handleResponse(response, false);
 }
 
-//Init function is called when window.onload runs (set below).
+// Init function is called when window.onload runs (set below).
+// Set up connections and events
 const init = () => {
-  //Grab the form
+  // Create user form event
   const nameForm = document.querySelector('#nameForm');
   //Create an addUser function that cancels the forms default action and
   //calls our sendPost function above.
@@ -150,16 +157,17 @@ const init = () => {
   //Call addUser when the submit event fires on the form.
   nameForm.addEventListener('submit', addUser);
 
+  // Get user form event
   // Connect the userForm similarly to the nameForm
   const userForm = document.querySelector('#userForm');
   const getUser = (e) => {
     e.preventDefault();
-    sendGet(userForm);
+    sendUserGet(userForm);
     return false;
   }
   userForm.addEventListener('submit', getUser);
 
-  // Send Message
+  // Post message form event
   const mesageForm = document.querySelector('#chatBox');
   const sendMessage = (e) => {
     e.preventDefault();
@@ -168,7 +176,7 @@ const init = () => {
   }
   mesageForm.addEventListener('submit', sendMessage);
 
-  // Get Messages
+  // Get messages button event
   const getMessageBtn = document.querySelector("#getMessageBtn");
   const getMessages = (e) => {
     e.preventDefault();

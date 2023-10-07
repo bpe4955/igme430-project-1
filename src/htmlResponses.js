@@ -1,6 +1,7 @@
 const fs = require('fs');
 const url = require('url');
 
+// Directors to files
 const index = fs.readFileSync(`${__dirname}/../client/client.html`);
 const style = fs.readFileSync(`${__dirname}/../client/style.css`);
 const js = fs.readFileSync(`${__dirname}/../hosted/bundle.js`);
@@ -11,6 +12,7 @@ const urlStruct = {
   '/bundle.js': js,
 };
 
+// Get html data, such as html pages, css, and client js
 const getPage = (request, response) => {
   const parsedURL = url.parse(request.url);
   let contentType = 'text/html';

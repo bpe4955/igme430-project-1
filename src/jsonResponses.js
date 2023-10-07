@@ -1,4 +1,4 @@
-// Stores the users (temp)
+// Server Storage
 const users = {};
 const messages = {};
 //const requests = {}; // For Long-Polling
@@ -19,14 +19,18 @@ const respondJSONMeta = (request, response, status) => {
 };
 
 // return user object as JSON
-const getUsers = (request, response, head) => {
+const getUsers = (request, response, params, head) => {
   if (!head) {
     const responseJSON = { users };
     return respondJSON(request, response, 200, responseJSON);
   }
   return respondJSONMeta(request, response, 200);
 };
-// return messages object as JSON
+
+
+// return messagesToSend object as JSON
+// this object contains all the messages that the user doesn't already have
+// also return the time this response was recieved to keep track of what the user has
 const getMessages = (request, response, params, head) => {
   if (!head) {
     const requestTime = Date.now();
@@ -36,8 +40,10 @@ const getMessages = (request, response, params, head) => {
       if (key >= clientTime) { messagesToSend[key] = messages[key]; }
     });
     // If no messages to send, send success
-    if (!messagesToSend) { return respondJSONMeta(request, response, 204); }
-    const responseJSON = { messagesToSend, time: requestTime };
+    if (Object.keys(messagesToSend).length === 0) { 
+      return respondJSONMeta(request, response, 204); 
+    }
+    const responseJSON = { messages: messagesToSend, time: requestTime };
     return respondJSON(request, response, 200, responseJSON);
   }
   return respondJSONMeta(request, response, 200);
@@ -50,6 +56,7 @@ const addUser = (request, response, body) => {
     message: 'Name and color are both required.',
   };
 
+  // If the post request is empty
   if (!body) {
     responseJSON.message = 'No body sent with POST request';
     responseJSON.id = 'noBodySent';
@@ -57,15 +64,13 @@ const addUser = (request, response, body) => {
   }
 
   // check to make sure we have both fields
-  // We might want more validation than just checking if they exist
-  // This could easily be abused with invalid types (such as booleans, numbers, etc)
   // If either are missing, send back an error message as a 400 badRequest
   if (!body.name || !body.color) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  // default status code to 204 updated
+  // default status code to 204 (updated)
   let responseCode = 204;
 
   // If the user doesn't exist yet
@@ -85,25 +90,25 @@ const addUser = (request, response, body) => {
     responseJSON.message = 'Created Successfully';
     return respondJSON(request, response, responseCode, responseJSON);
   }
-  // 204 has an empty payload, just a success
-  // It cannot have a body, so we just send a 204 without a message
-  // 204 will not alter the browser in any way!!!
+  // If the user was just updated, return 204
   return respondJSONMeta(request, response, responseCode);
 };
 
+// function to add a message from a POST body
 const addMessage = (request, response, body) => {
   // default json message
   const responseJSON = {
     message: 'Name, Color, and Message are required.',
   };
 
+  // If the post request is empty
   if (!body) {
     responseJSON.message = 'No body sent with POST request';
     responseJSON.id = 'noBodySent';
     return respondJSON(request, response, 501, responseJSON);
   }
 
-  // If either are missing, send back an error message as a 400 badRequest
+  // If something is missing, send back an error message as a 400 badRequest
   if (!body.name || !body.color || !body.message) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
@@ -116,11 +121,13 @@ const addMessage = (request, response, body) => {
   messages[time].color = body.color;
   messages[time].message = body.message;
 
-  // if response is created, then set our created message
-  // and sent response with a message
+  // once response is created, then set our created message
+  // and send response with a message
   responseJSON.message = 'Message Created Successfully';
   return respondJSON(request, response, 201, responseJSON);
 };
+
+// function for searching outside of parameters
 const notFound = (request, response, head) => {
   if (!head) {
     const responseJSON = {

@@ -1,3 +1,4 @@
+// Importing
 const http = require('http');
 const url = require('url');
 const query = require('querystring');
@@ -6,6 +7,7 @@ const jsonHandler = require('./jsonResponses.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
+// Handled pages
 const urlStruct = {
   '/': htmlHandler.getPage,
   '/style.css': htmlHandler.getPage,
@@ -17,7 +19,7 @@ const urlStruct = {
   '/notReal': jsonHandler.notFound,
 };
 
-// Handle get requests, such as getting the html page or data
+// Handle GET requests, such as getting the html page or data
 const handleGet = (request, response, params, parsedURL) => {
   if (urlStruct[parsedURL.pathname]) {
     urlStruct[parsedURL.pathname](request, response, params);
@@ -28,13 +30,13 @@ const handleGet = (request, response, params, parsedURL) => {
 // Each GET request will have a coresponding HEAD request
 const handleHead = (request, response, params, parsedURL) => {
   if (urlStruct[parsedURL.pathname]) {
-    urlStruct[parsedURL.pathname](request, response, true);
+    urlStruct[parsedURL.pathname](request, response, params, true);
   } else {
     urlStruct['/notReal'](request, response, true);
   }
 };
 
-// Handle post requests, mainly adding users to data
+// Handle post requests, mainly adding users or messages to data
 const handlePost = (request, response, params, parsedURL) => {
   if (!urlStruct[parsedURL.pathname]) { urlStruct['/notReal'](request, response/* , params */); }
 
@@ -80,6 +82,7 @@ const onRequest = (request, response) => {
   }
 };
 
+// Start server when this file is run
 http.createServer(onRequest).listen(port, () => {
   console.log(`Listening on 127.0.0.1:${port}`);
 });
