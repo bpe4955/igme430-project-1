@@ -8,14 +8,13 @@ const js = fs.readFileSync(`${__dirname}/../hosted/bundle.js`);
 const urlStruct = {
   '/': index,
   '/style.css': style,
-  '/bundle.js': js
+  '/bundle.js': js,
 };
 
 const getPage = (request, response) => {
   const parsedURL = url.parse(request.url);
   let contentType = 'text/html';
-  if (parsedURL.pathname.includes('.css')) { contentType = 'text/css'; }
-  else if (parsedURL.pathname.includes('.js')) { contentType = 'text/javascript'; }
+  if (parsedURL.pathname.includes('.css')) { contentType = 'text/css'; } else if (parsedURL.pathname.includes('.js')) { contentType = 'text/javascript'; }
 
   response.writeHead(200, { 'Content-Type': contentType });
   if (urlStruct[parsedURL.pathname]) {

@@ -11,16 +11,26 @@ const urlStruct = {
   '/style.css': htmlHandler.getPage,
   '/bundle.js': htmlHandler.getPage,
   '/getUsers': jsonHandler.getUsers,
+  '/getMessages': jsonHandler.getMessages,
   '/addUser': jsonHandler.addUser,
+  '/sendMessage': jsonHandler.addMessage,
   '/notReal': jsonHandler.notFound,
 };
 
 // Handle get requests, such as getting the html page or data
 const handleGet = (request, response, params, parsedURL) => {
   if (urlStruct[parsedURL.pathname]) {
-    urlStruct[parsedURL.pathname](request, response/* , params */);
+    urlStruct[parsedURL.pathname](request, response, params);
   } else {
     urlStruct['/notReal'](request, response/* , params */);
+  }
+};
+// Each GET request will have a coresponding HEAD request
+const handleHead = (request, response, params, parsedURL) => {
+  if (urlStruct[parsedURL.pathname]) {
+    urlStruct[parsedURL.pathname](request, response, true);
+  } else {
+    urlStruct['/notReal'](request, response, true);
   }
 };
 
@@ -53,14 +63,6 @@ const handlePost = (request, response, params, parsedURL) => {
   });
 };
 
-const handleHead = (request, response, params, parsedURL) => {
-  if (urlStruct[parsedURL.pathname]) {
-    urlStruct[parsedURL.pathname](request, response, true);
-  } else {
-    urlStruct['/notReal'](request, response, true);
-  }
-};
-
 // Take in requests and send them off to cooresponding functions to be handled
 const onRequest = (request, response) => {
   console.log(request.url);
@@ -69,7 +71,13 @@ const onRequest = (request, response) => {
   const parsedURL = url.parse(request.url);
   const params = query.parse(parsedURL.query);
 
-  if (request.method === 'POST') { handlePost(request, response, params, parsedURL); } else if (request.method === 'GET') { handleGet(request, response, params, parsedURL); } else if (request.method === 'HEAD') { handleHead(request, response, params, parsedURL); }
+  if (request.method === 'POST') {
+    handlePost(request, response, params, parsedURL);
+  } else if (request.method === 'GET') {
+    handleGet(request, response, params, parsedURL);
+  } else if (request.method === 'HEAD') {
+    handleHead(request, response, params, parsedURL);
+  }
 };
 
 http.createServer(onRequest).listen(port, () => {

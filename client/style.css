@@ -19,3 +19,14 @@ html, body {
   font-size: 2em;
   text-align: center;
 }
+
+#chat {
+  background-color: gainsboro;
+  width: 90%;
+  margin: auto;
+}
+
+#chatbox {
+  text-align: center;
+  margin: 0 auto;
+}

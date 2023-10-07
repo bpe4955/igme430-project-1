@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Our simple HTTP server</title>
+  <title>Simple chat app</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  
   <script src="/bundle.js"></script>
 </head>
 <body>
   <section id="top">
-    <h3>POST Status Code Tests</h3>
+    <!-- User Name Input -->
+    <h3>User Info</h3>
     <form id="nameForm" action="/addUser" method="post">
       <label for="name">Name: </label>
       <input id="nameField" type="text" name="name" />
-      <label for="age">Age: </label>
-      <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
+      <label for="color">Color: </label>
+      <select id='colorField' name="color">
+        <option value='black'>Black</option>
+        <option value='blue'>Blue</option>
+      </select>
       <input type="submit" value="Add User" />
     </form>
+    <!-- Not being used -->
     <form id="userForm" action="/getUsers" method="get">
       <select id='urlField'>
         <option value='/getUsers'>/getUsers</option>
@@ -28,7 +32,20 @@
       <input type="submit" value="Get User" />
     </form>
   </section>
-  <section id="content">
+  <!-- Content for response info -->
+  <section id="content"> </section>
+  <!-- Display the chat -->
+  <section id="chat">
+    <p class="client">Test</p>
+  </section>
+  <!-- Send messages -->
+  <section id="chatbox">
+  <h3>Send Message</h3>
+    <form id="chatBox" action="/sendMessage" method="post">
+      <input id="messageField" type="text" name="message" />
+      <input type="submit" value="Send" />
+    </form>
+    <button type="button" id="getMessageBtn">Get Messages</button>
   </section>
 </body>
 </html>
