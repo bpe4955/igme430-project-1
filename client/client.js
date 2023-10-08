@@ -51,7 +51,11 @@ const handleResponse = async (response, headRequest) => {
     });
   }
   // If getting messages, update the lastMessageTime variable
-  if (obj.time) { lastMessageTime = obj.time; }
+  if (obj.time) { 
+    lastMessageTime = obj.time; 
+    // After getting new messages, make a new request for messages
+    sendMessageGet();
+  }
 };
 
 // Sends the user data to the server
@@ -139,6 +143,11 @@ const sendMessageGet = async () => {
     headers: { 'Accept': 'application/json', },
   });
 
+  // If the request times out, send it again
+  if(response.status === 502){
+    return sendMessageGet();
+  }
+
   handleResponse(response, false);
 }
 
@@ -151,6 +160,7 @@ const init = () => {
   //calls our sendPost function above.
   const addUser = (e) => {
     e.preventDefault();
+    getMessages(e);
     sendUserPost(nameForm);
     return false;
   }

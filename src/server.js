@@ -13,7 +13,7 @@ const urlStruct = {
   '/style.css': htmlHandler.getPage,
   '/bundle.js': htmlHandler.getPage,
   '/getUsers': jsonHandler.getUsers,
-  '/getMessages': jsonHandler.getMessages,
+  '/getMessages': jsonHandler.requestMessages,
   '/addUser': jsonHandler.addUser,
   '/sendMessage': jsonHandler.addMessage,
   '/notReal': jsonHandler.notFound,

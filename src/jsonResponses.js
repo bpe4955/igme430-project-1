@@ -1,7 +1,7 @@
 // Server Storage
 const users = {};
 const messages = {};
-//const requests = {}; // For Long-Polling
+let requests = {}; // For Long-Polling
 
 // function to respond with a json object
 // takes request, response, status code and object to send
@@ -26,8 +26,6 @@ const getUsers = (request, response, params, head) => {
   }
   return respondJSONMeta(request, response, 200);
 };
-
-
 // return messagesToSend object as JSON
 // this object contains all the messages that the user doesn't already have
 // also return the time this response was recieved to keep track of what the user has
@@ -37,16 +35,49 @@ const getMessages = (request, response, params, head) => {
     const clientTime = params.time;
     const messagesToSend = {};
     Object.keys(messages).forEach((key) => {
-      if (key >= clientTime) { messagesToSend[key] = messages[key]; }
+      if (key > clientTime) { messagesToSend[key] = messages[key]; }
     });
     // If no messages to send, send success
-    if (Object.keys(messagesToSend).length === 0) { 
-      return respondJSONMeta(request, response, 204); 
+    if (Object.keys(messagesToSend).length === 0) {
+      return respondJSON(request, response, 200, { time: requestTime });
     }
     const responseJSON = { messages: messagesToSend, time: requestTime };
     return respondJSON(request, response, 200, responseJSON);
   }
   return respondJSONMeta(request, response, 200);
+};
+
+// Function for long polling messages
+// stores requests in an object on the server
+const requestMessages = (request, response, params, head) => {
+  // Initial request will go through and not be stored
+  if (params.time === '0') { return getMessages(request, response, params, head); }
+  // Requests will be fulfilled if there currently is a message for them
+  if (Object.keys(messages)[Object.keys(messages).length - 1] > params.time) {
+    return getMessages(request, response, params, head);
+  }
+
+  // If there's currently no message to serve, add the response to responses{}
+  requests[request] = {};
+  requests[request].request = request;
+  requests[request].response = response;
+  requests[request].params = params;
+  requests[request].head = head;
+  return false;
+};
+
+// Called once a message is posted
+// Handles all long poll requests for messages
+const handleStoredRequests = () => {
+  Object.keys(requests).forEach((request) => {
+    getMessages(
+      requests[request].request,
+      requests[request].response,
+      requests[request].params,
+      requests[request].head,
+    );
+  });
+  requests = {};
 };
 
 // function to add a user from a POST body
@@ -124,6 +155,7 @@ const addMessage = (request, response, body) => {
   // once response is created, then set our created message
   // and send response with a message
   responseJSON.message = 'Message Created Successfully';
+  handleStoredRequests();
   return respondJSON(request, response, 201, responseJSON);
 };
 
@@ -142,7 +174,7 @@ const notFound = (request, response, head) => {
 // public exports
 module.exports = {
   getUsers,
-  getMessages,
+  requestMessages,
   addUser,
   addMessage,
   notFound,
