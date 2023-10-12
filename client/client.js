@@ -1,6 +1,7 @@
 let userName = "";
 let userColor = "";
 let lastMessageTime = 0;
+let messageRequestActive = false;
 
 
 //Handles our FETCH response. This function is async because it
@@ -11,6 +12,25 @@ const handleResponse = async (response, headRequest) => {
   const content = document.querySelector('#content');
   const chatBox = document.querySelector('#chat');
 
+  if (headRequest) { content.innerHTML += '<p>Meta Data Recieved</p>'; return; }
+
+  //Parse the response to json. This works because we know the server always
+  //sends back json. Await because .json() is an async function.
+  let obj = await response.json();
+  // If getting messages, show the messages in the chatbox
+  if (obj.messages) { 
+    Object.keys(obj.messages).forEach(key => {
+      chatBox.innerHTML += `<p>${obj.messages[key].name}: ${obj.messages[key].message}</p>`;
+    });
+  }
+  // If getting messages, update the lastMessageTime variable
+  if (obj.time) { 
+    lastMessageTime = obj.time; 
+    // After getting new messages, make a new request for messages
+    return sendMessageGet();
+  }
+  
+  
   //Based on the status code, display something
   switch (response.status) {
     case 200: //success
@@ -33,29 +53,11 @@ const handleResponse = async (response, headRequest) => {
       break;
   }
 
-  if (headRequest) { content.innerHTML += '<p>Meta Data Recieved</p>'; return; }
-
-  //Parse the response to json. This works because we know the server always
-  //sends back json. Await because .json() is an async function.
-  let obj = await response.json();
-
   //If we have a message, display it.
   if (obj.message) { content.innerHTML += `<p>Message: ${obj.message}</p>`; }
   if (obj.id) { content.innerHTML += `<p>Id: ${obj.id}</p>`; }
   // If getting users, show the users in content
   if (obj.users) { content.innerHTML += `<p>${JSON.stringify(obj.users)}</p>`; }
-  // If getting messages, show the messages in the chatbox
-  if (obj.messages) { 
-    Object.keys(obj.messages).forEach(key => {
-      chatBox.innerHTML += `<p>${obj.messages[key].name}: ${obj.messages[key].message}</p>`;
-    });
-  }
-  // If getting messages, update the lastMessageTime variable
-  if (obj.time) { 
-    lastMessageTime = obj.time; 
-    // After getting new messages, make a new request for messages
-    sendMessageGet();
-  }
 };
 
 // Sends the user data to the server
@@ -137,7 +139,7 @@ const sendUserGet = async (userForm) => {
 
 // Send a request to get messages
 const sendMessageGet = async () => {
-
+  messageRequestActive = true;
   let response = await fetch(`/getMessages?time=${lastMessageTime}`, {
     method: 'get',
     headers: { 'Accept': 'application/json', },
@@ -160,7 +162,7 @@ const init = () => {
   //calls our sendPost function above.
   const addUser = (e) => {
     e.preventDefault();
-    getMessages(e);
+    if(!messageRequestActive) { sendMessageGet(); }
     sendUserPost(nameForm);
     return false;
   }
@@ -187,13 +189,13 @@ const init = () => {
   mesageForm.addEventListener('submit', sendMessage);
 
   // Get messages button event
-  const getMessageBtn = document.querySelector("#getMessageBtn");
-  const getMessages = (e) => {
-    e.preventDefault();
-    sendMessageGet();
-    return false;
-  }
-  getMessageBtn.addEventListener('click', getMessages);
+  //const getMessageBtn = document.querySelector("#getMessageBtn");
+  // const getMessages = (e) => {
+  //   e.preventDefault();
+  //   sendMessageGet();
+  //   return false;
+  // }
+  //getMessageBtn.addEventListener('click', getMessages);
 };
 
 //When the window loads, run init.

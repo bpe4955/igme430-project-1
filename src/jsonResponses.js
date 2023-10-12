@@ -1,7 +1,9 @@
 // Server Storage
 const users = {};
 const messages = {};
-let requests = {}; // For Long-Polling
+const requests = {}; // For Long-Polling
+let requestsLength = 0;
+let lastRequest = 0;
 
 // function to respond with a json object
 // takes request, response, status code and object to send
@@ -58,26 +60,37 @@ const requestMessages = (request, response, params, head) => {
   }
 
   // If there's currently no message to serve, add the response to responses{}
-  requests[request] = {};
-  requests[request].request = request;
-  requests[request].response = response;
-  requests[request].params = params;
-  requests[request].head = head;
+  requests[requestsLength] = {};
+  requests[requestsLength].request = request;
+  requests[requestsLength].response = response;
+  requests[requestsLength].params = params;
+  requests[requestsLength].head = head;
+  requestsLength++;
   return false;
 };
 
 // Called once a message is posted
 // Handles all long poll requests for messages
 const handleStoredRequests = () => {
-  Object.keys(requests).forEach((request) => {
+  for (let index = lastRequest; index < requestsLength; index++) {
     getMessages(
-      requests[request].request,
-      requests[request].response,
-      requests[request].params,
-      requests[request].head,
+      requests[index].request,
+      requests[index].response,
+      requests[index].params,
+      requests[index].head,
     );
-  });
-  requests = {};
+    lastRequest = requestsLength;
+  }
+  // Object.keys(requests).forEach((request) => {
+  //   // Get lastRequest first up to requests length
+  //   getMessages(
+  //     requests[requestsLength].request,
+  //     requests[requestsLength].response,
+  //     requests[requestsLength].params,
+  //     requests[requestsLength].head,
+  //   );
+  // });
+  // requests = {};
 };
 
 // function to add a user from a POST body
