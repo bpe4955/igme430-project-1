@@ -8,7 +8,7 @@
 <body>
   <section id="top">
     <!-- User Name Input -->
-    <h3>User Info</h3>
+    <h3>Sign In</h3>
     <form id="nameForm" action="/addUser" method="post">
       <label for="name">Name: </label>
       <input id="nameField" type="text" name="name" />
@@ -17,10 +17,10 @@
         <option value='black'>Black</option>
         <option value='blue'>Blue</option>
       </select>
-      <input type="submit" value="Add User" />
+      <input type="submit" value="Set User" />
     </form>
     <!-- Not being used -->
-    <form id="userForm" action="/getUsers" method="get">
+    <!-- <form id="userForm" action="/getUsers" method="get">
       <select id='urlField'>
         <option value='/getUsers'>/getUsers</option>
         <option value='/notReal'>/notReal</option>
@@ -30,7 +30,7 @@
         <option value="head">HEAD</option>
       </select>
       <input type="submit" value="Get User" />
-    </form>
+    </form> -->
   </section>
   <!-- Content for response info -->
   <section id="content"> </section>
@@ -41,7 +41,8 @@
   <section id="chatbox">
   <h3>Send Message</h3>
     <form id="chatBox" action="/sendMessage" method="post">
-      <input id="messageField" type="text" name="message" />
+      <label id="messageLabel"  for="message" class="user-name">Name: </label>
+      <input id="messageField" type="text" name="message" class="user-message"/>
       <input type="submit" value="Send" />
     </form>
     <!-- <button type="button" id="getMessageBtn">Get Messages</button> -->

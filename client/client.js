@@ -12,15 +12,20 @@ const handleResponse = async (response, headRequest) => {
   const content = document.querySelector('#content');
   const chatBox = document.querySelector('#chat');
 
+  //Code if there is no body
   if (headRequest) { content.innerHTML += '<p>Meta Data Recieved</p>'; return; }
+  if(response.status === 204) { content.innerHTML = '<b>User Updated (No Content)</b>'; return; }
 
-  //Parse the response to json. This works because we know the server always
-  //sends back json. Await because .json() is an async function.
+  //Parse the response to json. This works because we know the server always sends back json. 
+  //Await because .json() is an async function.
   let obj = await response.json();
   // If getting messages, show the messages in the chatbox
   if (obj.messages) { 
     Object.keys(obj.messages).forEach(key => {
-      chatBox.innerHTML += `<p>${obj.messages[key].name}: ${obj.messages[key].message}</p>`;
+      chatBox.innerHTML += `<div class="chat-message">
+      <p class="user-name user-${obj.messages[key].color}">${obj.messages[key].name}</p> 
+      <p class="user-message message-${obj.messages[key].color}">${obj.messages[key].message}</p>
+      </div>`;
     });
   }
   // If getting messages, update the lastMessageTime variable
@@ -86,10 +91,20 @@ const sendUserPost = async (nameForm) => {
     body: formData,
   });
 
+  // If the post was successful
+  if(response.status === 201 || response.status === 204){
+    document.querySelector("#chatbox").style.visibility = "visible";
+    document.querySelector("#chat").style.visibility = "visible";
+
+    userName = nameField.value;
+    userColor = colorField.value;
+
+    document.querySelector("#messageLabel").classList = `user-name user-${userColor}`;
+    document.querySelector("#messageLabel").innerHTML = userName;
+    document.querySelector("#messageField").classList = `user-message message-${userColor}`;
+  }
   //Once we have a response, handle it.
   handleResponse(response);
-  userName = nameField.value;
-  userColor = colorField.value;
 };
 
 // Sends the message data to the server
@@ -171,13 +186,13 @@ const init = () => {
 
   // Get user form event
   // Connect the userForm similarly to the nameForm
-  const userForm = document.querySelector('#userForm');
-  const getUser = (e) => {
-    e.preventDefault();
-    sendUserGet(userForm);
-    return false;
-  }
-  userForm.addEventListener('submit', getUser);
+  // const userForm = document.querySelector('#userForm');
+  // const getUser = (e) => {
+  //   e.preventDefault();
+  //   sendUserGet(userForm);
+  //   return false;
+  // }
+  // userForm.addEventListener('submit', getUser);
 
   // Post message form event
   const mesageForm = document.querySelector('#chatBox');
@@ -188,14 +203,6 @@ const init = () => {
   }
   mesageForm.addEventListener('submit', sendMessage);
 
-  // Get messages button event
-  //const getMessageBtn = document.querySelector("#getMessageBtn");
-  // const getMessages = (e) => {
-  //   e.preventDefault();
-  //   sendMessageGet();
-  //   return false;
-  // }
-  //getMessageBtn.addEventListener('click', getMessages);
 };
 
 //When the window loads, run init.

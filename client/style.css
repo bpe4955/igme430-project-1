@@ -15,18 +15,88 @@ html, body {
 }
 
 #content {
-  margin-top: 100px;
-  font-size: 2em;
+  font-size: 1.20em;
   text-align: center;
+  position: absolute;
+  right: 30px;
+  bottom: 0px;
 }
 
+/* Area that displays messages */
 #chat {
+  padding-top: 0.2rem;
+  visibility: hidden;
   background-color: gainsboro;
   width: 90%;
-  margin: auto;
+  height: 70%;
+  margin: 2rem auto;
+  overflow: auto;
 }
 
+/* Contains the user-name and user-message */
+.chat-message{
+  margin: 0rem 0.5rem;
+  padding: 0rem 0.2rem;
+  display: grid;
+  grid-template-columns: 1fr 9fr;
+}
+
+/* Display the user's name next to their message */
+.user-name{
+  margin-top: 0;
+  margin-bottom: 2px;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 5px;
+  border-top-right-radius: 0px;
+  text-align: left;
+  padding: 0.1rem;
+  padding-left: 0.25rem;
+}
+.user-black{
+  color: black;
+  border-color: black;
+  background-color: darkgrey;
+}
+.user-blue{
+  color: blue;
+  border-color: blue;
+  background-color:cornflowerblue;
+}
+
+/* Display the user's message by their name */
+.user-message{
+  margin-top: 0;
+  margin-bottom: 2px;
+  padding-top: 0.1rem;
+  padding-left: 0.5rem;
+  border-style: solid;
+  border-width: 2px;
+  border-left-style: none;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: white;
+  color: black
+}
+.message-black{
+  border-color: black;
+}
+.message-blue{
+  border-color: blue;
+}
+
+/* Area to send messages */
 #chatbox {
+  visibility: hidden;
   text-align: center;
   margin: 0 auto;
+}
+#messageField{
+  margin-left: -4px;
+}
+#messageField:focus{
+  outline: none;
+}
+#messageField:focus-visible{
+  outline: 2px;
 }
