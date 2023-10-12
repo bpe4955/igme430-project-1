@@ -79,18 +79,8 @@ const handleStoredRequests = () => {
       requests[index].params,
       requests[index].head,
     );
-    lastRequest = requestsLength;
   }
-  // Object.keys(requests).forEach((request) => {
-  //   // Get lastRequest first up to requests length
-  //   getMessages(
-  //     requests[requestsLength].request,
-  //     requests[requestsLength].response,
-  //     requests[requestsLength].params,
-  //     requests[requestsLength].head,
-  //   );
-  // });
-  // requests = {};
+  lastRequest = requestsLength;
 };
 
 // function to add a user from a POST body
