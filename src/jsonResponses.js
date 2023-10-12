@@ -34,7 +34,9 @@ const getUsers = (request, response, params, head) => {
 const getMessages = (request, response, params, head) => {
   if (!head) {
     const requestTime = Date.now();
-    const clientTime = params.time;
+    let clientTime;
+    if (params.time) { clientTime = params.time; } else { clientTime = 0; }
+    // const clientTime = params.time;
     const messagesToSend = {};
     Object.keys(messages).forEach((key) => {
       if (key > clientTime) { messagesToSend[key] = messages[key]; }
@@ -46,12 +48,15 @@ const getMessages = (request, response, params, head) => {
     const responseJSON = { messages: messagesToSend, time: requestTime };
     return respondJSON(request, response, 200, responseJSON);
   }
+  // If it's a head request, return meta data
   return respondJSONMeta(request, response, 200);
 };
 
 // Function for long polling messages
 // stores requests in an object on the server
 const requestMessages = (request, response, params, head) => {
+  // If requesting without any params // through browser URL
+  if (!params.time) { return getMessages(request, response, params, head); }
   // Initial request will go through and not be stored
   if (params.time === '0') { return getMessages(request, response, params, head); }
   // Requests will be fulfilled if there currently is a message for them
@@ -94,7 +99,7 @@ const addUser = (request, response, body) => {
   if (!body) {
     responseJSON.message = 'No body sent with POST request';
     responseJSON.id = 'noBodySent';
-    return respondJSON(request, response, 501, responseJSON);
+    return respondJSON(request, response, 400, responseJSON);
   }
 
   // check to make sure we have both fields

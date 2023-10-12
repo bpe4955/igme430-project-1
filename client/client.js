@@ -2,6 +2,7 @@ let userName = "";
 let userColor = "";
 let lastMessageTime = 0;
 let messageRequestActive = false;
+let chatFocused = false;
 
 
 //Handles our FETCH response. This function is async because it
@@ -27,6 +28,11 @@ const handleResponse = async (response, headRequest) => {
       <p class="user-message message-${obj.messages[key].color}">${obj.messages[key].message}</p>
       </div>`;
     });
+    // Auto-scroll chatbox to the bottom if the user isn't interacting with the chat
+    if(!chatFocused){
+      let chat = document.querySelector("#chat");
+      chat.scrollTop = chat.scrollHeight;
+    }
   }
   // If getting messages, update the lastMessageTime variable
   if (obj.time) { 
@@ -202,6 +208,10 @@ const init = () => {
     return false;
   }
   mesageForm.addEventListener('submit', sendMessage);
+
+  // Scrolling the chat messages
+  document.querySelector("#chat").addEventListener('mouseenter', () => { chatFocused=true; });
+  document.querySelector("#chat").addEventListener('mouseleave', () => { chatFocused=false; });
 
 };
 
