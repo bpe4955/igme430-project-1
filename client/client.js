@@ -41,7 +41,7 @@ const handleResponse = async (response, headRequest) => {
     return sendMessageGet();
   }
   
-  
+  // content is hidden in the browser, but can still be checked in the inspector
   //Based on the status code, display something
   switch (response.status) {
     case 200: //success
@@ -68,7 +68,7 @@ const handleResponse = async (response, headRequest) => {
   if (obj.message) { content.innerHTML += `<p>Message: ${obj.message}</p>`; }
   if (obj.id) { content.innerHTML += `<p>Id: ${obj.id}</p>`; }
   // If getting users, show the users in content
-  if (obj.users) { content.innerHTML += `<p>${JSON.stringify(obj.users)}</p>`; }
+  //if (obj.users) { content.innerHTML += `<p>${JSON.stringify(obj.users)}</p>`; }
 };
 
 // Sends the user data to the server
@@ -147,16 +147,15 @@ const sendMessagePost = async (messageForm) => {
 
 // Send a request to get users
 // Will likely be unneeded in the final version
-const sendUserGet = async (userForm) => {
-  const actionField = userForm.querySelector('#urlField');
-  const methodField = userForm.querySelector('#methodSelect');
-  let response = await fetch(actionField.value, {
-    method: methodField.value,
-    headers: { 'Accept': 'application/json', },
-  });
-
-  handleResponse(response, methodField.value === 'head');
-}
+// const sendUserGet = async (userForm) => {
+//   const actionField = userForm.querySelector('#urlField');
+//   const methodField = userForm.querySelector('#methodSelect');
+//   let response = await fetch(actionField.value, {
+//     method: methodField.value,
+//     headers: { 'Accept': 'application/json', },
+//   });
+//   handleResponse(response, methodField.value === 'head');
+// }
 
 // Send a request to get messages
 const sendMessageGet = async () => {
@@ -167,7 +166,7 @@ const sendMessageGet = async () => {
   });
 
   // If the request times out, send it again
-  if(response.status === 502){
+  if(response.status === 408 || response.status === 503){
     return sendMessageGet();
   }
 
@@ -212,7 +211,6 @@ const init = () => {
   // Scrolling the chat messages
   document.querySelector("#chat").addEventListener('mouseenter', () => { chatFocused=true; });
   document.querySelector("#chat").addEventListener('mouseleave', () => { chatFocused=false; });
-
 };
 
 //When the window loads, run init.
