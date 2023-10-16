@@ -22,6 +22,7 @@ const handleResponse = async (response, headRequest) => {
   let obj = await response.json();
   // If getting messages, show the messages in the chatbox
   if (obj.messages) { 
+    // Code to loop through a js object taken from the Discord Server
     Object.keys(obj.messages).forEach(key => {
       chatBox.innerHTML += `<div class="chat-message">
       <p class="user-name user-${obj.messages[key].color}">${obj.messages[key].name}</p> 
@@ -31,6 +32,8 @@ const handleResponse = async (response, headRequest) => {
     // Auto-scroll chatbox to the bottom if the user isn't interacting with the chat
     if(!chatFocused){
       let chat = document.querySelector("#chat");
+      // this line taken from stackoverflow
+      // https://stackoverflow.com/questions/18614301/keep-overflow-div-scrolled-to-bottom-unless-user-scrolls-up
       chat.scrollTop = chat.scrollHeight;
     }
   }
