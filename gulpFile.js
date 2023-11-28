@@ -9,6 +9,9 @@ const sassTask = (done) => {
     gulp.src('./scss/main.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest('./hosted'));
+    gulp.src('./scss/domo-style.scss')
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest('./hosted'));
 
     done();
 };
@@ -32,12 +35,14 @@ const lintTask = (done) => {
 const build = gulp.parallel(sassTask, jsTask, lintTask);
 
 const watch = (done) => {
+    build();
     gulp.watch('./scss', sassTask);
     gulp.watch(['./client/*.js', './client/*.jsx'], jsTask);
     nodemon({ 
         script: './server/app.js',
         tasks: ['lintTask'],
-        watch: ['./server', './hosted'],
+        watch: ['./server', './hosted', './views'],
+        ext: 'js handlebars css',
         done: done
     });
 }
