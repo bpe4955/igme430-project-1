@@ -10,7 +10,7 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 // Handled pages
 const urlStruct = {
   '/': htmlHandler.getPage,
-  '/style.css': htmlHandler.getPage,
+  '/hosted/main.css': htmlHandler.getPage,
   '/bundle.js': htmlHandler.getPage,
   '/getUsers': jsonHandler.getUsers,
   '/getMessages': jsonHandler.requestMessages,

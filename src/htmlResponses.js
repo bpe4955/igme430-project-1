@@ -3,12 +3,12 @@ const url = require('url');
 
 // Directors to files
 const index = fs.readFileSync(`${__dirname}/../client/client.html`);
-const style = fs.readFileSync(`${__dirname}/../client/style.css`);
+const style = fs.readFileSync(`${__dirname}/../hosted/main.css`);
 const js = fs.readFileSync(`${__dirname}/../hosted/bundle.js`);
 
 const urlStruct = {
   '/': index,
-  '/style.css': style,
+  '/hosted/main.css': style,
   '/bundle.js': js,
 };
 
