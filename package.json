@@ -1,13 +1,13 @@
 {
   "name": "igme430-project-2",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "a simple chat app",
   "main": "./server/app.js",
   "scripts": {
-    "start": "node ./src/server.js",
-    "pretest": "eslint ./src --fix",
+    "start": "node ./server/app.js",
+    "pretest": "eslint ./server --fix",
     "test": "echo \"Tests complete\" ",
-    "nodemon": "nodemon -e js,html,css --watch ./src --watch ./hosted --watch ./client/client.html --watch ./client/style.css ./src/server.js",
+    "nodemon": "nodemon -e js,handlebars,css --watch ./server --watch ./hosted --watch ./client/helper.js --watch",
     "buildBundle": "webpack",
     "watchBundle": "webpack watch",
     "heroku-postbuild": "webpack --mode production",
