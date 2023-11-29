@@ -2,6 +2,10 @@ const helper = require('./helper.js');
 const React = require('react');
 const ReactDOM = require('react-dom');
 
+const socket = io();
+
+
+//req.session.account for name and color of current
 let userName = "";
 let userColor = "";
 let lastMessageTime = 0;
@@ -19,13 +23,13 @@ const handleResponse = async (response, headRequest) => {
 
   //Code if there is no body
   if (headRequest) { content.innerHTML += '<p>Meta Data Recieved</p>'; return; }
-  if(response.status === 204) { content.innerHTML = '<b>User Updated (No Content)</b>'; return; }
+  if (response.status === 204) { content.innerHTML = '<b>User Updated (No Content)</b>'; return; }
 
   //Parse the response to json. This works because we know the server always sends back json. 
   //Await because .json() is an async function.
   let obj = await response.json();
   // If getting messages, show the messages in the chatbox
-  if (obj.messages) { 
+  if (obj.messages) {
     // Code to loop through a js object taken from the Discord Server
     Object.keys(obj.messages).forEach(key => {
       chatBox.innerHTML += `<div class="chat-message">
@@ -34,7 +38,7 @@ const handleResponse = async (response, headRequest) => {
       </div>`;
     });
     // Auto-scroll chatbox to the bottom if the user isn't interacting with the chat
-    if(!chatFocused){
+    if (!chatFocused) {
       let chat = document.querySelector("#chat");
       // this line taken from stackoverflow
       // https://stackoverflow.com/questions/18614301/keep-overflow-div-scrolled-to-bottom-unless-user-scrolls-up
@@ -42,12 +46,12 @@ const handleResponse = async (response, headRequest) => {
     }
   }
   // If getting messages, update the lastMessageTime variable
-  if (obj.time) { 
-    lastMessageTime = obj.time; 
+  if (obj.time) {
+    lastMessageTime = obj.time;
     // After getting new messages, make a new request for messages
     return sendMessageGet();
   }
-  
+
   // content is hidden in the browser, but can still be checked in the inspector
   //Based on the status code, display something
   switch (response.status) {
@@ -105,7 +109,7 @@ const sendUserPost = async (nameForm) => {
   });
 
   // If the post was successful
-  if(response.status === 201 || response.status === 204){
+  if (response.status === 201 || response.status === 204) {
     document.querySelector("#chatbox").style.visibility = "visible";
     document.querySelector("#chat").style.visibility = "visible";
 
@@ -128,7 +132,10 @@ const sendMessagePost = async (messageForm) => {
   const messageMethod = messageForm.getAttribute('method');
 
   //Build a data string in the FORM-URLENCODED format.
-  const formData = `name=${userName}&color=${userColor}&message=${messageForm.querySelector("#messageField").value}`;
+  const formData = `name=${sessionStorage.getItem('username')}
+  &color=${sessionStorage.getItem('color')}
+  &message=${messageForm.querySelector("#messageField").value}
+  &_id=${sessionStorage.getItem('_id')}`;
 
   //Make a fetch request and await a response. Set the method to
   //the one provided by the form (POST). Set the headers. Content-Type
@@ -144,12 +151,12 @@ const sendMessagePost = async (messageForm) => {
   });
 
   //Clear message form if response went well
-  if(response.status === 201) { messageForm.querySelector("#messageField").value = ""; }
+  if (response.status === 201) { messageForm.querySelector("#messageField").value = ""; }
 
   //Once we have a response, handle it.
-  handleResponse(response); 
+  handleResponse(response);
 
-  
+
 };
 
 // Send a request to get users
@@ -173,12 +180,80 @@ const sendMessageGet = async () => {
   });
 
   // If the request times out, send it again
-  if(response.status === 408 || response.status === 503){
+  if (response.status === 408 || response.status === 503) {
     return sendMessageGet();
   }
 
   handleResponse(response, false);
 }
+
+const initMessageBox = () => {
+  const editForm = document.querySelector('#messageForm');
+  const editBox = document.querySelector('#messageField');
+
+  if (!sessionStorage.getItem('color')) {
+    helper.sendGet('/getUserColor', (result) => {
+      sessionStorage.setItem('color', result.color);
+    });
+  }
+  if (!sessionStorage.getItem('_id')) {
+    helper.sendGet('/getUserId', (result) => {
+      sessionStorage.setItem('_id', result._id);
+    });
+  }
+  if (!sessionStorage.getItem('userName')) {
+    helper.sendGet('/getUserName', (result) => {
+      sessionStorage.setItem('userName', result.username);
+    });
+  }
+
+  editForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (editBox.value) {
+      /* Unlike in the basic demo, we are reverting to only
+         sending simple text messages to the 'chat message'
+         event channel, since the server will handle the
+         messaging channel for us.
+      */ 
+      socket.emit('chat message', {
+        message: editBox.value,
+        color: sessionStorage.getItem('color'),
+        userName: sessionStorage.getItem('userName'),
+        _id: sessionStorage.getItem('_id')
+      });
+      editBox.value = '';
+    }
+
+    return false;
+  });
+};
+
+const initChannelSelect = async () => {
+  //const channelSelect = document.getElementById('channelSelect');
+  const messages = document.getElementById('content');
+
+  // await channelSelect.addEventListener('change', () => {
+  //   messages.innerHTML = '';
+  //   socket.emit('room change', channelSelect.value);
+  // });
+}
+
+const displayMessage = (msg) => {
+  const messageDiv = document.createElement('div');
+  messageDiv.classList.add('chat-message');
+  const nameP = document.createElement('p');
+  nameP.classList.add(['user-name', `user-${msg.color}`,]);
+  nameP.innerHTML = msg.userName;
+  messageDiv.appendChild(nameP);
+  const messageP = document.createElement('p');
+  messageP.classList.add(['user-message', `message-${msg.color}`,]);
+  messageP.innerHTML = msg.message;
+  messageDiv.appendChild(messageP);
+  document.querySelector('#chat').appendChild(messageDiv);
+}
+
+const requestInitialMessages = () => { }
 
 // Init function is called when window.onload runs (set below).
 // Set up connections and events
@@ -189,7 +264,7 @@ const init = () => {
   //calls our sendPost function above.
   const addUser = (e) => {
     e.preventDefault();
-    if(!messageRequestActive) { sendMessageGet(); }
+    if (!messageRequestActive) { sendMessageGet(); }
     sendUserPost(nameForm);
     return false;
   }
@@ -207,7 +282,7 @@ const init = () => {
   // userForm.addEventListener('submit', getUser);
 
   // Post message form event
-  const mesageForm = document.querySelector('#chatBox');
+  const mesageForm = document.querySelector('#messageForm');
   const sendMessage = (e) => {
     e.preventDefault();
     sendMessagePost(mesageForm);
@@ -216,8 +291,13 @@ const init = () => {
   mesageForm.addEventListener('submit', sendMessage);
 
   // Scrolling the chat messages
-  document.querySelector("#chat").addEventListener('mouseenter', () => { chatFocused=true; });
-  document.querySelector("#chat").addEventListener('mouseleave', () => { chatFocused=false; });
+  document.querySelector("#chat").addEventListener('mouseenter', () => { chatFocused = true; });
+  document.querySelector("#chat").addEventListener('mouseleave', () => { chatFocused = false; });
+
+  //Socket io
+  initMessageBox();
+  initChannelSelect();
+  socket.on('chat message', displayMessage);
 };
 
 //When the window loads, run init.

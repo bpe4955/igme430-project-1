@@ -56,7 +56,7 @@ const sendMessage = (req, res) => {
     }
 
     // If something is missing, send back an error message as a 400 badRequest
-    if (!req.body.name || !req.body.color || !req.body.message) {
+    if (!req.session.account.username || !req.session.account.color || !req.body.message) {
         responseJSON.id = 'missingParams';
         return res.status(400).json(responseJSON);
     }

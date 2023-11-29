@@ -12,6 +12,7 @@ const handleLogin = (e) => {
         return false;
     }
 
+    sessionStorage.setItem('userName', username);
     helper.sendPost(e.target.action, { username, pass });
 
     return false;
@@ -31,6 +32,8 @@ const handleSignup = (e) => {
         return false;
     }
 
+    sessionStorage.setItem('userName', username);
+    sessionStorage.setItem('color', black);
     helper.sendPost(e.target.action, { username, pass, pass2 });
 
     return false;

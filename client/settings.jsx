@@ -5,7 +5,6 @@ const ReactDOM = require('react-dom');
 
 const handlePassChange = (e) => {
     e.preventDefault();
-    console.log('Called handlePassChange');
     const oldPass = e.target.querySelector('#oldpass').value;
     const pass = e.target.querySelector('#pass').value;
     const pass2 = e.target.querySelector('#pass2').value;

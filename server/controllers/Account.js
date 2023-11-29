@@ -77,6 +77,21 @@ const changePass = async (req, res) => {
   });
 };
 
+const getUserColor = (req, res) => {
+  if(!req.session) { return res.status(500).json({message: 'No session data'}); }
+  return res.json({color: req.session.account.color});
+};
+
+const getUsername = (req, res) => {
+  if(!req.session) { return res.status(500).json({message: 'No session data'}); }
+  return res.json({username: req.session.account.username});
+};
+
+const getUserId = (req, res) => {
+  if(!req.session) { return res.status(500).json({message: 'No session data'}); }
+  return res.json({_id: req.session.account._id});
+};
+
 module.exports = {
   loginPage,
   settingsPage,
@@ -84,4 +99,7 @@ module.exports = {
   login,
   signup,
   changePass,
+  getUserColor,
+  getUsername,
+  getUserId
 };

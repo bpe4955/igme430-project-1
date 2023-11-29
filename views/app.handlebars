@@ -3,6 +3,7 @@
 <head>
   <title>Simple chat app</title>
   <link rel="stylesheet" type="text/css" href="/assets/main.css">
+  <script src="/socket.io/socket.io.js"></script>
   <script src="/assets/appBundle.js"></script>
 </head>
 <body>
@@ -40,9 +41,9 @@
     <p id="title-message">NON-PICTORAL CHAT</p>
   </section>
   <!-- Send messages -->
-  <section id="chatbox">
+  <section>
   <h3>Send Message</h3>
-    <form id="chatBox" action="/sendMessage" method="post">
+    <form id="messageForm" action="/sendMessage" method="post">
       <label id="messageLabel"  for="message" class="user-name">Name: </label>
       <input id="messageField" type="text" name="message" class="user-message"/>
       <input type="submit" value="Send" />

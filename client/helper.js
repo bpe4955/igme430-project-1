@@ -12,16 +12,33 @@ const sendPost = async (url, data, handler) => {
     if (result.redirect) {
         window.location = result.redirect;
     }
-    
+
     if (result.error) {
         handleError(result.error);
     }
 
-    if(handler){
+    if (handler) {
         handler(result);
     }
 };
 
+const sendGet = async (url, handler) => {
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+
+    const result = await response.json();
+
+    if (handler) {
+        handler(result);
+    }
+    else { return result; }
+};
+
 module.exports = {
-    sendPost
+    sendPost,
+    sendGet
 };
