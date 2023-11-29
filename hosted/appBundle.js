@@ -1,4 +1,4 @@
-(()=>{var e={603:e=>{e.exports={sendPost:async(e,n,t)=>{const r=await fetch(e,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(n)}),l=await r.json();l.redirect&&(window.location=l.redirect),l.error&&handleError(l.error),t&&t(l)},sendGet:async(e,n)=>{const t=await fetch(e,{method:"GET",headers:{Accept:"application/json"}}),r=await t.json();if(!n)return r;n(r)}}},448:(e,n,t)=>{"use strict";
+(()=>{var e={603:e=>{e.exports={sendPost:async(e,n,t)=>{const r=await fetch(e,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(n)}),l=await r.json();l.redirect&&(window.location=l.redirect),t&&t(l)},sendGet:async(e,n)=>{const t=await fetch(e,{method:"GET",headers:{Accept:"application/json"}}),r=await t.json();if(!n)return r;n(r)}}},448:(e,n,t)=>{"use strict";
 /**
  * @license React
  * react-dom.production.min.js
