@@ -27,7 +27,6 @@ body {
   /* Area that displays messages */
   #chat {
     padding-top: 0.2rem;
-    visibility: hidden;
     background-color: gainsboro;
     width: 90%;
     height: 70%;
@@ -111,7 +110,6 @@ body {
   /* Area to send messages */
   #chatbox {
     margin: 0 auto;
-    visibility: hidden;
     text-align: center;
   }
   #chatbox, #top{

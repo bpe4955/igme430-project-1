@@ -33,7 +33,7 @@ const handleSignup = (e) => {
     }
 
     sessionStorage.setItem('userName', username);
-    sessionStorage.setItem('color', black);
+    sessionStorage.setItem('color', "black");
     helper.sendPost(e.target.action, { username, pass, pass2 });
 
     return false;

@@ -35,7 +35,7 @@ const AccountSchema = new mongoose.Schema({
   },
   color: {
     type: String,
-    default: 'black',
+    default: "black",
   },
   createdDate: {
     type: Date,
